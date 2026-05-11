@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+langgraph
+crewai
+litellm
+crewai[tools]
+langchain-groq
+requests
+python-dotenv
+sqlalchemy 
+psycopg2-binary

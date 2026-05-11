@@ -1,0 +1,75 @@
+services:
+  db:  
+    image: ankane/pgvector:latest
+    container_name: ai_grading_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: AI_Grading
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - grading_network
+
+  backend:
+    build: .
+    container_name: ai_grading_backend_v2
+    ports:
+      - "8080:8000"
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - grading_network
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai_grading_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules 
+    environment:
+      - WDS_SOCKET_PORT=3000
+      - WATCHPACK_POLLING=true
+    stdin_open: true
+    tty: true
+    networks:
+      - grading_network
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: AI_automation_v2
+    restart: always
+    ports:
+      - "5680:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5680/
+    volumes:
+      - n8n_data_v2:/home/node/.n8n
+    networks:
+      - grading_network
+    depends_on:
+      - backend
+
+networks:
+  grading_network:
+    driver: bridge
+
+volumes:
+  n8n_data_v2:
+  postgres_data:
