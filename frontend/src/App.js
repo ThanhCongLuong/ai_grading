@@ -87,7 +87,6 @@ function App() {
       <nav className="tab-navigation">
         <button className="tab-item active">Pending</button>
         <button className="tab-item">Approved</button>
-        <button className="tab-item">Rejected</button>
       </nav>
 
       <div className="table-wrapper">
