@@ -1,10 +1,10 @@
 # AI-Powered IELTS Grading System (LangGraph)
 > An intelligent system that automates the IELTS essay grading process and pedagogical feedback generation using AI Agents and human-in-the-loop workflows.
-> Watch demo [_here_](https://langgraph-nu.vercel.app/).
-![Banking Bot Demo](./img/LangGraph_Demo.gif)
+> Watch demo: [_here_](https://langgraph-nu.vercel.app/).
 ## Table of Contents
 * [General Information](#general-information)
 * [Technologies Used](#technologies-used)
+* [Architecture](#architecture)
 * [Features](#features)
 * [Frontend Overview](#frontend-overview)
 * [Setup](#setup)
@@ -26,7 +26,35 @@
 - **Database**: PostgreSQL (with pgvector support).
 - **Infrastructure**: Docker, Docker Compose.
 - **Automation**: n8n (Webhook,GoogleDrive & Email integration).
+## Architecture
+![AI Grading Demo](./img/Architecture.png)
+
+**1. Ingestion**
+Google Drive Folder & n8n Trigger: n8n monitors a specific Google Drive folder for new PDF submissions. When a file is detected, n8n triggers a webhook to send the data to the Backend.
+
+**2. Backend Processing**
+- **FastAPI Backend**: Receives requests and manages the overall orchestration of the grading process.  
+
+- **LangGraph State Machine**: Coordinates the flow of the GradingState throughout the lifecycle.  
+
+- **Grading Department**: Invokes a specialized crew of agents to process the essay.
+
+- **Writing Phase**: Receives the agents' output and prepares the final HTML email draft.
   
+- **PostgreSQL Database**: Persists student information and temporary grading results.  
+
+**3. Human-in-the-Loop**
+- **Teacher Dashboard**: Provides a centralized UI for instructors to view submissions, AI scores, and email drafts.
+
+- **Review & Edit**: Instructors can manually edit the AI-generated email content directly within the Review Modal.
+
+- **Approval Event**: Clicking the Approve button sends the finalized content back to FastAPI to trigger the delivery phase.
+
+**4. Delivery**
+- **n8n Email Service**: Upon approval, FastAPI calls n8n via a dedicated webhook.  
+
+- **Student Email Inbox**: n8n delivers the professional pedagogical feedback directly to the student’s email.
+
 ## Features
 - **Multi-Agent Orchestration**: Utilizes CrewAI agents for specialized grading tasks.
   - **Data Extraction Specialist**: Extracts the student's name from both the file content and the filename.
@@ -70,7 +98,7 @@ The system features a React-based management interface designed for academic adm
 
 ### Local Setup
 1. Clone the repository: git clone <repo-url>
-2. Create a .env file in the root: GROQ_API_KEY=your_key_here and DATABASE_URL=your_postgres_url.
+2. Create a .env file in the root: `GROQ_API_KEY=your_key_here` and `DATABASE_URL=your_postgres_url`.
 3. Start the entire stack using Docker: `docker-compose up --build`
 
 ## Usage
